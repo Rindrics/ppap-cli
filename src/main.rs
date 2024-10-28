@@ -1,4 +1,5 @@
 use clap::Parser;
+use anyhow::Result;
 mod config;
 mod smtp;
 
@@ -17,7 +18,14 @@ struct Opts {
     email: String,
 }
 
-fn main() {
+fn main() -> Result<()>{
     let opts: Opts = Opts::parse();
+
+    let config = config::EmailConfig::from_env()?;
+
+    let smtp_client = smtp::SmtpClient::new(&config)?;
+    smtp_client.send_test_email(&opts.email);
+
     println!("ppnp (file: {}, email: {})", opts.file, opts.email);
+    Ok(())
 }
