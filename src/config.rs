@@ -10,16 +10,27 @@ impl EmailConfig {
     pub fn from_env() -> anyhow::Result<Self> {
         dotenv::dotenv().ok();
 
+        let server = std::env::var("SMTP_SERVER")
+            .map_err(|_| anyhow::anyhow!("SMTP_SERVER is not set"))?;
+        let port = std::env::var("SMTP_PORT")
+            .map_err(|_| anyhow::anyhow!("SMTP_PORT is not set"))?
+            .parse()?;
+        let user = std::env::var("SMTP_USERNAME")
+            .map_err(|_| anyhow::anyhow!("SMTP_USERNAME is not set"))?;
+        let pass = std::env::var("SMTP_PASSWORD")
+            .map_err(|_| anyhow::anyhow!("SMTP_PASSWORD is not set"))?;
+
+        println!("SMTP Configuration:");
+        println!("  Server: {}", server);
+        println!("  Port: {}", port);
+        println!("  Username: {}", user);
+        println!("  Password: {}", "*".repeat(pass.len()));
+
         Ok(Self {
-            smtp_server: std::env::var("SMTP_SERVER")
-                .map_err(|_| anyhow::anyhow!("SMTP_SERVER is not set"))?,
-            smtp_port: std::env::var("SMTP_PORT")
-                .map_err(|_| anyhow::anyhow!("SMTP_PORT is not set"))?
-                .parse()?,
-            username: std::env::var("SMTP_USERNAME")
-                .map_err(|_| anyhow::anyhow!("SMTP_USERNAME is not set"))?,
-            password: std::env::var("SMTP_PASSWORD")
-                .map_err(|_| anyhow::anyhow!("SMTP_PASSWORD is not set"))?,
+            smtp_server: server,
+            smtp_port: port,
+            username: user,
+            password: pass,
         })
     }
 }

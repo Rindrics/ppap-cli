@@ -1,5 +1,6 @@
 use lettre::{Message, SmtpTransport, Transport};
 use lettre::transport::smtp::authentication::Credentials;
+use std::time::Duration;
 
 pub struct SmtpClient {
     transport: SmtpTransport,
@@ -16,6 +17,7 @@ impl SmtpClient {
         let transport = SmtpTransport::relay(&config.smtp_server)?
             .port(config.smtp_port)
             .credentials(creds)
+            .timeout(Some(Duration::from_secs(10)))
             .build();
 
         Ok(Self {
@@ -25,14 +27,24 @@ impl SmtpClient {
     }
 
     pub fn send_test_email(&self, to: &str) -> anyhow::Result<()> {
+        println!("Attempting to send email to: {}", to);
+
         let email = Message::builder()
             .from(self.from_address.parse()?)
             .to(to.parse()?)
             .subject("Test Email")
             .body(String::from("This is a test email"))?;
 
-        self.transport.send(&email)?;
-        Ok(())
+        match self.transport.send(&email) {
+            Ok(_) => {
+                println!("Email sent successfully!");
+                Ok(())
+            },
+            Err(e) => {
+                println!("Failed to send email: {}", e);
+                Err(anyhow::anyhow!("Failed to send email: {}", e))
+            }
+        }
     }
 }
 

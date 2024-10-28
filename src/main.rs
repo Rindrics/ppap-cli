@@ -24,7 +24,7 @@ fn main() -> Result<()>{
     let config = config::EmailConfig::from_env()?;
 
     let smtp_client = smtp::SmtpClient::new(&config)?;
-    smtp_client.send_test_email(&opts.email);
+    smtp_client.send_test_email(&opts.email)?;
 
     println!("ppnp (file: {}, email: {})", opts.file, opts.email);
     Ok(())
