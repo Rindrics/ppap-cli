@@ -38,7 +38,7 @@ async fn async_main() -> Result<()> {
 
     println!("File sent successfully to: {}", opts.email);
 
-    zip::cleanup_temp_file(&zip_path)?;
+    //zip::cleanup_temp_file(&zip_path)?;
     Ok(())
 }
 
