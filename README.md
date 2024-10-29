@@ -4,7 +4,7 @@
 >
 > — George Has-risk-son, '*Here comes the ZIP*'
 
-PPAP (Password-locked zipfile Password *Angouka* Protocol) is a traditional Japanese file sharing protocol.
+PPAP (**P**assword-locked zipfile **P**assword ***A**ngouka* **P**rotocol) is a traditional Japanese file sharing protocol.
 This tool streamlines the PPAP-based file sharing process by automating email delivery.
 
 ## What is PPAP?
