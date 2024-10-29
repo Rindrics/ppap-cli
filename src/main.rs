@@ -1,4 +1,5 @@
 mod email;
+mod zip;
 
 use clap::Parser;
 use anyhow::Result;
@@ -23,6 +24,8 @@ struct Opts {
 async fn async_main() -> Result<()> {
     let opts: Opts = Opts::parse();
 
+    let zip_path = zip::compress_file(&opts.file)?;
+
     let config = SendGridConfig::from_env()?;
 
     let sender = SendGridRestSender::new(&config);
@@ -34,6 +37,8 @@ async fn async_main() -> Result<()> {
     ).await?;
 
     println!("File sent successfully to: {}", opts.email);
+
+    zip::cleanup_temp_file(&zip_path)?;
     Ok(())
 }
 
