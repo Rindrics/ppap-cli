@@ -1,31 +1,43 @@
+mod email;
+
 use clap::Parser;
 use anyhow::Result;
-mod config;
-mod smtp;
+use email::{
+    config::SendGridConfig,
+    sender::EmailSender,
+    sendgrid::SendGridRestSender,
+};
 
 #[derive(Parser, Debug)]
-
 #[command(name = "ppap")]
 #[command(author = "Rindrics")]
 #[command(version = "0.1.0")]
 #[command(about = "CLI tool that uses traditional Japanese file sharing protocol")]
-
 struct Opts {
     #[arg(help = "Target file to be sent")]
     file: String,
-
     #[arg(help = "Email address of the recipient")]
     email: String,
 }
 
-fn main() -> Result<()>{
+async fn async_main() -> Result<()> {
     let opts: Opts = Opts::parse();
 
-    let config = config::EmailConfig::from_env()?;
+    let config = SendGridConfig::from_env()?;
 
-    let smtp_client = smtp::SmtpClient::new(&config)?;
-    smtp_client.send_test_email(&opts.email)?;
+    let sender = SendGridRestSender::new(&config);
 
-    println!("ppnp (file: {}, email: {})", opts.file, opts.email);
+    sender.send_email(
+        &opts.email,
+        "File Transfer",
+        "Please find the attached file.",
+    ).await?;
+
+    println!("File sent successfully to: {}", opts.email);
     Ok(())
+}
+
+#[tokio::main]
+async fn main() -> Result<()>{
+    async_main().await
 }
