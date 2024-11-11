@@ -5,7 +5,7 @@
 > — George Has-risk-son, '*Here comes the ZIP*'
 
 PPAP (**P**assword-locked zipfile **P**assword ***A**ngouka* **P**rotocol) is a traditional Japanese file sharing protocol.
-PPAP CLI streamlines the PPAP-based file sharing process by dnabling zip compression and subsequent password sharing by single command.
+PPAP CLI streamlines the PPAP-based file sharing process by enabling zip compression and subsequent password sharing by single command.
 
 ## What is PPAP?
 
