@@ -109,7 +109,23 @@ mod tests {
     #[test]
     fn test_file_not_found() {
         let result = compress_file("nonexistent.txt");
-        asse?;
+        assert!(result.is_err());
+    }
+
+    #[test]
+    fn test_unique_passwords() -> Result<()> {
+        let temp_dir = tempdir()?;
+        let test_file = create_test_file(
+            temp_dir.path(),
+            "test.txt",
+            b"test content"
+        )?;
+
+        let mut passwords = vec![];
+        for _ in 0..5 {
+            let (zip_path, password) = compress_file(&test_file)?;
+            passwords.push(password);
+            cleanup_temp_file(&zip_path)?;
         }
 
         let unique_passwords: std::collections::HashSet<_> = passwords.iter().collect();
