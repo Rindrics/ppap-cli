@@ -32,6 +32,12 @@ struct Opts {
 }
 
 async fn async_main() -> Result<()> {
+    // Show help if no arguments provided
+    if std::env::args().count() == 1 {
+        println!("{}", get_help_text());
+        return Ok(());
+    }
+
     let opts: Opts = Opts::parse();
 
     // Step 1: Compress file and get password
@@ -105,6 +111,11 @@ async fn async_main() -> Result<()> {
     }
 
     Ok(())
+}
+
+fn get_help_text() -> String {
+    use clap::CommandFactory;
+    Opts::command().render_help().to_string()
 }
 
 fn get_password_to_send(real_password: &str, secure_mode: bool) -> String {
