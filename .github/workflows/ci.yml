@@ -36,10 +36,10 @@ jobs:
           cache-on-failure: true
 
       - name: Check formatting
-        run: cargo fmt --all -- --check
+        run: make check-fmt
 
       - name: Run clippy
-        run: cargo clippy --all-targets --all-features -- -D warnings
+        run: make clippy
 
   test:
     name: Test (${{ matrix.os }})
@@ -67,10 +67,10 @@ jobs:
           key: ${{ matrix.os }}-${{ matrix.rust }}
 
       - name: Build
-        run: cargo build --verbose
+        run: cargo build
 
       - name: Run tests
-        run: cargo test --verbose
+        run: make test
         env:
           SENDGRID_API_KEY: ${{ secrets.SENDGRID_API_KEY || 'dummy_key_for_ci_testing' }}
           EMAIL_FROM_ADDRESS: ci-test@example.com
@@ -90,7 +90,7 @@ jobs:
         uses: Swatinem/rust-cache@v2
 
       - name: Build release binary
-        run: cargo build --release --verbose
+        run: make build
 
       - name: Check binary size
         run: |
