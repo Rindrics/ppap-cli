@@ -1,9 +1,9 @@
-use anyhow::{Result, Context};
+use anyhow::{Context, Result};
+use rand::distributions::Alphanumeric;
+use rand::{thread_rng, Rng};
 use std::fs;
 use std::io::Write;
 use zip::write::FileOptions;
-use rand::{thread_rng, Rng};
-use rand::distributions::Alphanumeric;
 
 struct ZipBuilder {
     temp_path: String,
@@ -26,11 +26,11 @@ impl ZipBuilder {
     }
 
     fn create_archive(&self, file_path: &str) -> Result<()> {
-        let file_content = fs::read(file_path)
-            .with_context(|| format!("Failed to read file: {}", file_path))?;
+        let file_content =
+            fs::read(file_path).with_context(|| format!("Failed to read file: {}", file_path))?;
 
-        let zip_file = fs::File::create(&self.temp_path)
-            .with_context(|| "Failed to create zip file")?;
+        let zip_file =
+            fs::File::create(&self.temp_path).with_context(|| "Failed to create zip file")?;
 
         let mut zip = zip::ZipWriter::new(zip_file);
         let options: FileOptions<'_, ()> = FileOptions::default()
@@ -61,12 +61,14 @@ impl ZipBuilder {
 pub fn compress_file(file_path: &str) -> Result<(String, String)> {
     let builder = ZipBuilder::new(file_path);
     builder.create_archive(file_path)?;
-    Ok((builder.get_path().to_string(), builder.get_password().to_string()))
+    Ok((
+        builder.get_path().to_string(),
+        builder.get_password().to_string(),
+    ))
 }
 
 pub fn cleanup_temp_file(temp_path: &str) -> Result<()> {
-    fs::remove_file(temp_path)
-        .with_context(|| "Failed to remove temporary zip file")?;
+    fs::remove_file(temp_path).with_context(|| "Failed to remove temporary zip file")?;
     Ok(())
 }
 
@@ -78,8 +80,7 @@ mod tests {
 
     fn create_test_file(dir: &std::path::Path, filename: &str, content: &[u8]) -> Result<String> {
         let file_path = dir.join(filename);
-        let mut file = File::create(&file_path)
-            .with_context(|| "Failed to create test file")?;
+        let mut file = File::create(&file_path).with_context(|| "Failed to create test file")?;
         file.write_all(content)?;
         Ok(file_path.to_string_lossy().into_owned())
     }
@@ -89,11 +90,7 @@ mod tests {
         let temp_dir = tempdir()?;
 
         let test_content = b"This is a test content that will be encrypted in the ZIP file.";
-        let test_file = create_test_file(
-            temp_dir.path(),
-            "secure.txt",
-            test_content
-        )?;
+        let test_file = create_test_file(temp_dir.path(), "secure.txt", test_content)?;
 
         let (zip_path, password) = compress_file(&test_file)?;
         println!("Generated password: {}", password);
@@ -115,11 +112,7 @@ mod tests {
     #[test]
     fn test_unique_passwords() -> Result<()> {
         let temp_dir = tempdir()?;
-        let test_file = create_test_file(
-            temp_dir.path(),
-            "test.txt",
-            b"test content"
-        )?;
+        let test_file = create_test_file(temp_dir.path(), "test.txt", b"test content")?;
 
         let mut passwords = vec![];
         for _ in 0..5 {
@@ -129,7 +122,11 @@ mod tests {
         }
 
         let unique_passwords: std::collections::HashSet<_> = passwords.iter().collect();
-        assert_eq!(unique_passwords.len(), passwords.len(), "Some passwords were not unique");
+        assert_eq!(
+            unique_passwords.len(),
+            passwords.len(),
+            "Some passwords were not unique"
+        );
 
         Ok(())
     }

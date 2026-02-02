@@ -1,14 +1,10 @@
 mod email;
 mod zip;
 
-use clap::Parser;
 use anyhow::Result;
+use clap::Parser;
+use email::{config::SendGridConfig, sender::EmailSender, sendgrid::SendGridRestSender};
 use std::io::Write;
-use email::{
-    config::SendGridConfig,
-    sender::EmailSender,
-    sendgrid::SendGridRestSender,
-};
 
 #[derive(Parser, Debug)]
 #[command(name = "ppap")]
@@ -22,12 +18,19 @@ struct Opts {
     #[arg(help = "Email address of the recipient")]
     email: String,
 
-    #[arg(short = 's', long = "secure",
-          help = "Enhance security by sending an incorrect password (Good luck explaining this to your recipient)")]
+    #[arg(
+        short = 's',
+        long = "secure",
+        help = "Enhance security by sending an incorrect password (Good luck explaining this to your recipient)"
+    )]
     secure: bool,
 
-    #[arg(short = 'a', long = "after", value_name = "HOURS",
-          help = "Delay password delivery by specified hours (Because waiting makes everything more secure)")]
+    #[arg(
+        short = 'a',
+        long = "after",
+        value_name = "HOURS",
+        help = "Delay password delivery by specified hours (Because waiting makes everything more secure)"
+    )]
     after: Option<u64>,
 }
 
@@ -77,8 +80,12 @@ async fn async_main() -> Result<()> {
         let total_seconds = hours * 3600;
         for elapsed in (0..total_seconds).step_by(60) {
             let remaining = total_seconds - elapsed;
-            print!("\rWaiting... ({:02}:{:02}:{:02} remaining)  ",
-                   remaining/3600, (remaining%3600)/60, remaining%60);
+            print!(
+                "\rWaiting... ({:02}:{:02}:{:02} remaining)  ",
+                remaining / 3600,
+                (remaining % 3600) / 60,
+                remaining % 60
+            );
             let _ = std::io::stdout().flush();
             tokio::time::sleep(std::time::Duration::from_secs(60)).await;
         }
@@ -92,11 +99,13 @@ async fn async_main() -> Result<()> {
         password_to_send
     );
 
-    sender.send_email(
-        &opts.email,
-        "Secure File Transfer - Password",
-        &password_email_body,
-    ).await?;
+    sender
+        .send_email(
+            &opts.email,
+            "Secure File Transfer - Password",
+            &password_email_body,
+        )
+        .await?;
     println!("Email #2 sent successfully!");
 
     // Step 7: Cleanup
@@ -106,7 +115,9 @@ async fn async_main() -> Result<()> {
     println!("\n=== PPAP Protocol Complete ===");
     println!("File sent successfully to: {}", opts.email);
     if opts.secure {
-        println!("[WARNING] Secure mode was enabled. The recipient received an INCORRECT password.");
+        println!(
+            "[WARNING] Secure mode was enabled. The recipient received an INCORRECT password."
+        );
         println!("Real password (for your records): {}", password);
     }
 
@@ -120,8 +131,8 @@ fn get_help_text() -> String {
 
 fn get_password_to_send(real_password: &str, secure_mode: bool) -> String {
     if secure_mode {
-        use rand::{thread_rng, Rng};
         use rand::distributions::Alphanumeric;
+        use rand::{thread_rng, Rng};
         thread_rng()
             .sample_iter(&Alphanumeric)
             .take(real_password.len())
@@ -133,6 +144,6 @@ fn get_password_to_send(real_password: &str, secure_mode: bool) -> String {
 }
 
 #[tokio::main]
-async fn main() -> Result<()>{
+async fn main() -> Result<()> {
     async_main().await
 }

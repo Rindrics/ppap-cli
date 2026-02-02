@@ -1,9 +1,9 @@
-use super::sender::EmailSender;
 use super::config::SendGridConfig;
-use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION, CONTENT_TYPE};
-use serde::Serialize;
+use super::sender::EmailSender;
 use anyhow::Context;
 use base64::Engine;
+use reqwest::header::{HeaderMap, HeaderValue, AUTHORIZATION, CONTENT_TYPE};
+use serde::Serialize;
 
 pub struct SendGridRestSender {
     api_key: String,
@@ -137,7 +137,8 @@ impl SendGridRestSender {
         // Note: Don't print full JSON with base64 content (too large)
         println!("Request body: [Mail with attachment - omitted for brevity]");
 
-        let response = self.client
+        let response = self
+            .client
             .post("https://api.sendgrid.com/v3/mail/send")
             .headers(headers)
             .json(&mail)
@@ -154,8 +155,7 @@ impl SendGridRestSender {
             let error_body = response.text().await?;
             let error = format!(
                 "Failed to send email with attachment: Status: {}, Body: {}",
-                status,
-                error_body
+                status, error_body
             );
             println!("Error: {}", error);
             Err(anyhow::anyhow!(error))
@@ -164,12 +164,7 @@ impl SendGridRestSender {
 }
 
 impl EmailSender for SendGridRestSender {
-    async fn send_email(
-        &self,
-        to: &str,
-        subject: &str,
-        body: &str,
-    ) -> anyhow::Result<()> {
+    async fn send_email(&self, to: &str, subject: &str, body: &str) -> anyhow::Result<()> {
         println!("Sending email via SendGrid REST API...");
         println!("From: {}", self.from_address);
         println!("To: {}", to);
@@ -207,7 +202,8 @@ impl EmailSender for SendGridRestSender {
             println!("{}", json);
         }
 
-        let response = self.client
+        let response = self
+            .client
             .post("https://api.sendgrid.com/v3/mail/send")
             .headers(headers)
             .json(&mail)
@@ -228,8 +224,7 @@ impl EmailSender for SendGridRestSender {
             let error_body = response.text().await?;
             let error = format!(
                 "Failed to send email: Status: {}, Body: {}",
-                status,
-                error_body
+                status, error_body
             );
             println!("Error: {}", error);
             Err(anyhow::anyhow!(error))
