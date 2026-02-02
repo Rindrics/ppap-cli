@@ -1,0 +1,8 @@
+[tagpr]
+releaseBranch = "main"
+versionFile = "Cargo.toml"
+vPrefix = true
+changelog = true
+release = true
+majorLabels = tagpr:major
+minorLabels = tagpr:minor
